@@ -43,14 +43,14 @@ app = Flask(__name__)
 def predict_svm():
     features = get_features(request)
     prediction = svm_model.predict([features])[0]
-    return jsonify({'prediction': class_names[int(prediction)]})
+    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction)})
 
 # API route for Decision Tree model 
 @app.route('/predict_decision_tree', methods=['GET'])
 def predict_decision_tree():
     features = get_features(request)
     prediction = decision_tree_model.predict([features])[0]
-    return jsonify({'prediction': class_names[int(prediction)]})
+    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction)})
 
 
 # API route for Consensus Prediction Since I'm using two models
@@ -60,7 +60,7 @@ def consensus_predict():
     dt_prediction = decision_tree_model.predict([features])[0]
     svm_prediction = svm_model.predict([features])[0]
     consensus_prediction = int(np.mean([dt_prediction, svm_prediction]))
-    return jsonify({'consensus_prediction': class_names[int(consensus_prediction)]})
+    return jsonify({'consensus_prediction': class_names[int(consensus_prediction)], 'prediction_int': int(consensus_prediction)})
 
 if __name__ == '__main__':
     app.run(debug=True)
