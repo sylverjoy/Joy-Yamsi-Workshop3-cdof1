@@ -6,8 +6,6 @@ from sklearn import datasets
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-import json
-
 # Load Iris dataset
 iris = datasets.load_iris()
 X, y = iris.data, iris.target
@@ -19,13 +17,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 svm_model = SVC()
 svm_model.fit(X_train, y_train)
 
+svm_pred_acc = accuracy_score(y_test, svm_model.predict_proba(X_test))
+
 # Train Decision Tree model 
 decision_tree_model = DecisionTreeClassifier()
 decision_tree_model.fit(X_train, y_train)
 
+dt_pred_acc = accuracy_score(y_test, decision_tree_model.predict_proba(X_test))
+
 # Mapping of class labels to flower names
 class_names = {0: 'Setosa', 1: 'Versicolor', 2: 'Virginica'}
 
+# Function to get feature values from post args
 def get_features(req):
     sepal_length = req.args.get('sepal_length', type=float)
     sepal_width = req.args.get('sepal_width', type=float)
@@ -43,14 +46,16 @@ app = Flask(__name__)
 def predict_svm():
     features = get_features(request)
     prediction = svm_model.predict([features])[0]
-    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction)})
+    
+    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction), 'accuracy': svm_pred_acc})
 
 # API route for Decision Tree model 
 @app.route('/predict_decision_tree', methods=['GET'])
 def predict_decision_tree():
     features = get_features(request)
     prediction = decision_tree_model.predict([features])[0]
-    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction)})
+    
+    return jsonify({'prediction': class_names[int(prediction)], 'prediction_int': int(prediction), 'accuracy': dt_pred_acc})
 
 
 # API route for Consensus Prediction Since I'm using two models
@@ -60,9 +65,10 @@ def consensus_predict():
     dt_prediction = decision_tree_model.predict([features])[0]
     svm_prediction = svm_model.predict([features])[0]
     consensus_prediction = int(np.mean([dt_prediction, svm_prediction]))
-    return jsonify({'consensus_prediction': class_names[int(consensus_prediction)], 'prediction_int': int(consensus_prediction)})
+    consensus_proba = (svm_pred_acc + dt_pred_acc)/2
+
+    return jsonify({'prediction': class_names[int(consensus_prediction)], 'prediction_int': int(consensus_prediction), 'accuracy': consensus_proba})
 
 if __name__ == '__main__':
+
     app.run(debug=True)
-
-

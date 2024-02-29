@@ -1,0 +1,8 @@
+[
+  {
+    "id": 1,
+    "price": 30,
+    "category": "Category A",
+    "inStock": true
+  }
+]
