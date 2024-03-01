@@ -1,8 +1,16 @@
 [
   {
     "id": 1,
+    "name": "Test Prod",
     "price": 30,
     "category": "Category A",
     "inStock": true
+  },
+  {
+    "name": "Test Prod 2",
+    "price": 20,
+    "category": "Category A",
+    "inStock": true,
+    "id": 2
   }
 ]
